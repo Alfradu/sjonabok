@@ -52,6 +52,7 @@ function generate(json, scale) {
         }
     }
     var prevCanvas = document.getElementById('previewCanvas');
+    prevCanvas.style.boxShadow = "0px 0px 10px 0px rgba(0, 0, 0, 0.5)";
     var prevCanvasCtx = prevCanvas.getContext("2d");
     prevCanvas.width = json.size_x * 4;
     prevCanvas.height = json.size_y * 4;
