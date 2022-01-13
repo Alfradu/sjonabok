@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="style_create.css">
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="sidepanel">
+        <div class="section" id="top">
+            <h2>Pattern creator</h2>
+        </div>
+        <div class="section">
+            <!-- Draw | Erase -->
+            <button id="drawBtn" class="sectionBtn" type="button">
+                <img src="images/draw.png" id="drawImg" title='draw'/>
+            </button>
+            <button id="eraseBtn" class="sectionBtn" type="button">
+                <img src="images/erase.png" id="eraseImg" title='erase'/>
+            </button>
+        </div>
+        <div class="section">
+            <!-- Color swap (palette?) -->
+            <label>Palette</label>
+            <select name="color" id="colorPalette" title='Choose color'>
+                <option value="p1">Palette 1</option>
+                <option value="p2">Palette 2</option>
+                <option value="p3">Palette 3</option>
+                <option value="p4">Palette 4</option>
+            </select>
+        </div>
+        <div class="section">
+            <!-- rotation | behaviour -->
+        </div>
+        <div class="section">
+            <!-- flip x and flip y | overlap -->
+        </div>
+        <div class="section">
+            <!-- Save | Delete -->
+            <button id="saveBtn" class="sectionBtn" type="button">
+                <img src="images/save.png" id="saveImg" title='save'/>
+            </button>
+            <button id="delBtn" class="sectionBtn" type="button">
+                <img src="images/delete.png" id="delImg" title='delete'/>
+            </button>
+        </div>
+        <div class="section">
+            <!-- Page -->
+        </div>
+        <div class="section">
+            <label>Grid size</label>
+            <input type="number" class="gridsize" id="gridx" value="300" name="grid x" min="1" max="600" title='Choose x'>
+            <input type="number" class="gridsize" id="gridy" value="300" name="grid y" min="1" max="600" title='Choose y'>
+            <!-- Grid dimensions -->
+        </div>
+    </div>
+</body>
+<script src="create_pattern.js"></script>
+
+</html>

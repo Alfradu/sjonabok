@@ -1,0 +1,63 @@
+canvas {
+    border: 1px solid black;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: -webkit-crisp-edges;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    object-fit: contain;
+}
+
+#top {
+    height: auto;
+}
+
+.section {
+    border: 2px solid bisque;
+    height: 48px;
+    width: 98px;
+}
+
+#sidepanel {
+    position: absolute;
+    background-color: aliceblue;
+    text-align: center;
+    top: 50%;
+    transform: translate(0%, -50%);
+    height: auto;
+    width: 100px;
+}
+
+.gridsize {
+    border-width: 0px;
+    width: 40px;
+}
+
+.sectionBtn {
+    width: 47%;
+    height: 97%;
+    border-width: 0px;
+    padding: 0 0 0 0;
+    cursor: pointer;
+}
+
+#canvas {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    width: 100%;
+    max-width: 550px;
+    cursor: crosshair;
+    touch-action: none;
+}
+
+html,
+body {
+    background-color: bisque;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
