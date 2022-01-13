@@ -8,9 +8,29 @@
 <body>
     <canvas id="canvasBig"></canvas>
     <form id="container" name="jsonFile" enctype="multipart/form-data" method="post">
+        <div id="preview">
+            <canvas id="previewCanvas"></canvas>
+        </div>
         <h2>Pattern Generator</h2>
+        <div>
+            <label>Size</label>
+            <select name="size" id="size" title='Choose size'>
+                <option value="auto">auto</option>
+                <option value="hd">1920 x 1080</option>
+                <option value="2k">2560 x 1440</option>
+                <option value="4k">3840 x 2160</option>
+            </select>
+        </div>
+        <div>
+            <label>Scale</label>
+            <input type="range" id='scale' name='Scale' value='3' title='Choose Scale' min="1" max="5">
+        </div>
+        <div>
+            <label>Name</label>
+            <input type="text" id='name' name='name' value='Pattern' title='Choose file Name'>
+        </div>
         <input type='file' id='fileinput' accept=".json" title='Choose pattern file'>
-        <button id="saveBtn">Save pattern</button>
+        <button id="saveBtn" type="button">Save pattern</button>
     </form>
 </body>
 <script src="canvasj.js"></script>
