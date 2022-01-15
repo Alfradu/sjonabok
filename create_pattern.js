@@ -58,19 +58,6 @@ var palette = {
         "bg": "#b39f7b"
     }
 };
-//palette 1
-// 1 #825a3f
-// 2 #5e3427
-// 3 #352e21
-// 4 #4b4031
-// 5 #b4aa94
-
-//palette 2
-// 1 #949f9c
-// 2 #8c9899
-// 3 #2e261f
-// 4 #60615f
-// 5 #e0dad3
 
 document.getElementById("color1Btn").style.backgroundColor = palette[chosenPalette]["1"];
 document.getElementById("color2Btn").style.backgroundColor = palette[chosenPalette]["2"];
@@ -243,14 +230,14 @@ function save() {
             g = (data[i + 1] | 1 << 8).toString(16).slice(1);
             b = (data[i + 2] | 1 << 8).toString(16).slice(1);
             // a = (data[i + 3] | 1 << 8).toString(16).slice(1);
-            pattern += Object.keys(palette).find(key => palette[key] === "#" + r + g + b) || "0";
+            pattern += Object.keys(palette[chosenPalette]).find(key => palette[chosenPalette][key] == "#" + r + g + b) || "0";
         }
         if (count >= rowNumbers) count = 0;
     }
     template.size_x = grid_width;
     template.size_y = grid_height;
     template.pattern = pattern;
-    template.colors = palette;
+    template.colors = palette[chosenPalette];
     const blob = new Blob([JSON.stringify(template, null, 2)], { type: 'application/json' });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
