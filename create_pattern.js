@@ -22,17 +22,60 @@ var template = {
         "5": ""
     }
 }
+
+var chosenPalette = 1;
 var palette = {
-    "1": "#949f9c",
-    "2": "#8c9899",
-    "3": "#2e261f",
-    "4": "#60615f",
-    "5": "#e0dad3"
-}
-document.getElementById("color1Btn").style.backgroundColor = palette["1"];
-document.getElementById("color2Btn").style.backgroundColor = palette["2"];
-document.getElementById("color3Btn").style.backgroundColor = palette["3"];
-document.getElementById("color4Btn").style.backgroundColor = palette["4"];
+    "1": {
+        "1": "#825a3f",
+        "2": "#5e3427",
+        "3": "#352e21",
+        "4": "#4b4031",
+        "5": "#b4aa94",
+        "bg": "#d2b593"
+    },
+    "2": {
+        "1": "#949f9c",
+        "2": "#8c9899",
+        "3": "#2e261f",
+        "4": "#60615f",
+        "5": "#e0dad3",
+        "bg": "#aea392"
+    },
+    "3": {
+        "1": "#806d56",
+        "2": "#453423",
+        "3": "#22170f",
+        "4": "#3a3529",
+        "5": "#bdb399",
+        "bg": "#ad9c89"
+    },
+    "4": {
+        "1": "#5f5938",
+        "2": "#575330",
+        "3": "#2b2416",
+        "4": "#30291b",
+        "5": "#96866e",
+        "bg": "#b39f7b"
+    }
+};
+//palette 1
+// 1 #825a3f
+// 2 #5e3427
+// 3 #352e21
+// 4 #4b4031
+// 5 #b4aa94
+
+//palette 2
+// 1 #949f9c
+// 2 #8c9899
+// 3 #2e261f
+// 4 #60615f
+// 5 #e0dad3
+
+document.getElementById("color1Btn").style.backgroundColor = palette[chosenPalette]["1"];
+document.getElementById("color2Btn").style.backgroundColor = palette[chosenPalette]["2"];
+document.getElementById("color3Btn").style.backgroundColor = palette[chosenPalette]["3"];
+document.getElementById("color4Btn").style.backgroundColor = palette[chosenPalette]["4"];
 
 var stillclicking = false;
 document.getElementById("drawImg").style.opacity = "0.1";
@@ -49,9 +92,9 @@ canvas.width = grid_width * 10;
 canvas.height = grid_height * 10;
 var width = canvas.width;
 var height = canvas.height;
-canvasCtx.fillStyle = palette["5"];
+canvasCtx.fillStyle = palette[chosenPalette]["5"];
 canvasCtx.fillRect(0, 0, width, height);
-canvasCtx.fillStyle = palette["1"];
+canvasCtx.fillStyle = palette[chosenPalette]["1"];
 
 document.addEventListener('mouseup', () => {
     down = false;
@@ -101,6 +144,11 @@ eraseBtn.addEventListener("click", () => {
     }
 });
 
+const paletteBtn = document.getElementById('colorPalette');
+paletteBtn.addEventListener("change", (e) => {
+    changePalette(e.target.value);
+});
+
 const color1Btn = document.getElementById('color1Btn');
 color1Btn.addEventListener("click", () => { changeActiveColor("1") });
 const color2Btn = document.getElementById('color2Btn');
@@ -141,15 +189,15 @@ function draw(boundingClientRect, e) {
 
 function erase(boundingClientRect, e) {
     var tempColor = canvasCtx.fillStyle;
-    canvasCtx.fillStyle = palette["5"];
+    canvasCtx.fillStyle = palette[chosenPalette]["5"];
     this.draw(boundingClientRect, e);
     canvasCtx.fillStyle = tempColor;
 }
 
 function clearCanvas() {
-    canvasCtx.fillStyle = palette["5"];
+    canvasCtx.fillStyle = palette[chosenPalette]["5"];
     canvasCtx.fillRect(0, 0, width, height);
-    canvasCtx.fillStyle = palette[activeColor];
+    canvasCtx.fillStyle = palette[chosenPalette][activeColor];
 }
 
 function updateSize() {
@@ -164,12 +212,22 @@ function updateSize() {
 
 function changeActiveColor(color) {
     if (color == activeColor) return;
-    canvasCtx.fillStyle = palette[color];
+    canvasCtx.fillStyle = palette[chosenPalette][color];
     document.getElementById("color" + color + "Btn").style.borderWidth = "3px";
     document.getElementById("color" + color + "Btn").style.borderColor = "red";
 
     document.getElementById("color" + activeColor + "Btn").style.borderWidth = "0px";
     activeColor = color;
+}
+
+function changePalette(value) {
+    chosenPalette = value;
+    document.getElementById("color1Btn").style.backgroundColor = palette[chosenPalette]["1"];
+    document.getElementById("color2Btn").style.backgroundColor = palette[chosenPalette]["2"];
+    document.getElementById("color3Btn").style.backgroundColor = palette[chosenPalette]["3"];
+    document.getElementById("color4Btn").style.backgroundColor = palette[chosenPalette]["4"];
+    document.getElementsByTagName("body")[0].style.backgroundColor = palette[chosenPalette]["bg"];
+    clearCanvas();
 }
 
 function save() {

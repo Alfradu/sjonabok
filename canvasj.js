@@ -75,6 +75,8 @@ function generate(json, scale) {
         while (bigWidth <= windowSizeX) {
             var tempCanvas = document.createElement('canvas');
             var tempCtx = tempCanvas.getContext('2d');
+            tempCtx.canvas.width = bigCtx.canvas.width;
+            tempCtx.canvas.height = bigCtx.canvas.height;
             if (json.flipX && flip) tempCtx.translate(origCanvas.width, 0);
             if (json.flipX && flip) tempCtx.scale(-1, 1);
             if (json.flipY && flop) tempCtx.translate(0, origCanvas.height);
@@ -100,6 +102,7 @@ function generate(json, scale) {
             while (bigWidth <= windowSizeX) {
                 tempCanvas = document.createElement('canvas');
                 tempCtx = tempCanvas.getContext('2d');
+                tempCtx.canvas.width = bigCtx.canvas.width;
                 tempCtx.canvas.height = origCanvas.height;
                 if (json.flipX && flip) tempCtx.translate(origCanvas.width, 0);
                 if (json.flipX && flip) tempCtx.scale(-1, 1);
@@ -109,7 +112,7 @@ function generate(json, scale) {
                 if (json.flipX) flip = !flip;
                 if (json.flipY) flop = !flop;
                 tempCtx2.drawImage(tempCanvas, bigWidth, bigHeight);
-                bigWidth += origCanvas.width - json.overlap.x;
+                bigWidth += origCanvas.width - json.overlap.x * scale;
             }
             flip = initFlip == flip ? !flip : flip;
             flop = initFlop == flop ? !flop : flop;
