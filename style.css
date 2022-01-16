@@ -1,4 +1,16 @@
-#container {
+#mainPage {
+    background-color: aliceblue;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    width: auto;
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
+}
+
+#generatePage {
     background-color: aliceblue;
     position: absolute;
     top: 50%;

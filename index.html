@@ -8,7 +8,14 @@
 
 <body>
     <canvas id="canvasBig"></canvas>
-    <form id="container" name="jsonFile" enctype="multipart/form-data" method="post">
+    <div id="mainPage">
+        <h2>Sjónabók Patterns</h2>
+        <div>
+            <button id="generatePageBtn" type="button">Open pattern</button>
+            <button id="createPageBtn" type="button">Edit pattern</button>
+        </div>
+    </div>
+    <div id="generatePage" style="display:none">
         <div id="preview">
             <canvas id="previewCanvas"></canvas>
         </div>
@@ -32,8 +39,8 @@
         </div>
         <input type='file' id='fileinput' accept=".json" title='Choose pattern file'>
         <button id="saveBtn" type="button">Save pattern</button>
-    </form>
+    </div>
 </body>
-<script src="canvasj.js"></script>
+<script src="script.js"></script>
 
 </html>
