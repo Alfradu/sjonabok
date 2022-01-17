@@ -1,49 +1,174 @@
+// -------------------------------------------------------------
+// -------------------------- Globals --------------------------
+// -------------------------------------------------------------
+
+let page = "main";
 let pattern;
-var behaviour;
-var overlapX;
-var overlapY;
-var flipX;
-var flipY;
-var origCanvas = document.createElement('canvas');
-var origCanvasCtx = origCanvas.getContext("2d");
-let imgSizeX = window.innerWidth;
-let imgSizeY = window.innerHeight;
+
+if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.location.href);
+}
+
+// -------------------------------------------------------------
+// ---------------- Generate Pattern Elements ------------------
+// -------------------------------------------------------------
+
+const origCanvas = document.createElement('canvas');
+const origCanvasCtx = origCanvas.getContext("2d");
+const scale = document.getElementById('scale');
 const patternSize = document.getElementById('size');
+const fileSelector = document.getElementById('fileinput');
+const generateSaveBtn = document.getElementById('saveImgBtn');
+
+// -------------------------------------------------------------
+// ----------------- Create Pattern Elements -------------------
+// -------------------------------------------------------------
+
+const drawBtn = document.getElementById('drawBtn');
+const eraseBtn = document.getElementById('eraseBtn');
+const paletteBtn = document.getElementById('colorPalette');
+const color1Btn = document.getElementById('color1Btn');
+const color2Btn = document.getElementById('color2Btn');
+const color3Btn = document.getElementById('color3Btn');
+const color4Btn = document.getElementById('color4Btn');
+const saveBtn = document.getElementById('saveBtn');
+const deleteBtn = document.getElementById('delBtn');
+const gridBtn = document.getElementById('gridBtn');
+const gridWidth = parseInt(document.getElementById("gridx").value);
+const drawingcanvas = document.getElementById("canvas");
+const canvasCtx = drawingcanvas.getContext("2d");
+
+// -------------------------------------------------------------
+// ----------------- Generate Pattern Globals ------------------
+// -------------------------------------------------------------
+
+let scaleNumber = parseInt(scale.value);
+let behaviour;
+let overlapX;
+let overlapY;
+let flipX;
+let flipY;
+let imageSizeX = window.innerWidth;
+let imageSizeY = window.innerHeight;
+
+// -------------------------------------------------------------
+// ------------------ Create Pattern Globals -------------------
+// -------------------------------------------------------------
+
+var tool = 'draw';
+var down = false;
+var activeColor = "1";
+var stillclicking = false;
+var template = {
+    "page": 0,
+    "size_x": 0,
+    "size_y": 0,
+    "behaviour": "repeat",
+    "flipX": false,
+    "flipY": false,
+    "overlap": {
+        "x": 0,
+        "y": 0
+    },
+    "rotation": 0,
+    "pattern": "",
+    "colors": {
+        "1": "",
+        "2": "",
+        "3": "",
+        "4": "",
+        "5": ""
+    }
+}
+var chosenPalette = 1;
+var palette = {
+    "1": {
+        "1": "#825a3f",
+        "2": "#5e3427",
+        "3": "#352e21",
+        "4": "#4b4031",
+        "5": "#b4aa94",
+        "bg": "#d2b593"
+    },
+    "2": {
+        "1": "#949f9c",
+        "2": "#8c9899",
+        "3": "#2e261f",
+        "4": "#60615f",
+        "5": "#e0dad3",
+        "bg": "#aea392"
+    },
+    "3": {
+        "1": "#806d56",
+        "2": "#453423",
+        "3": "#22170f",
+        "4": "#3a3529",
+        "5": "#bdb399",
+        "bg": "#ad9c89"
+    },
+    "4": {
+        "1": "#5f5938",
+        "2": "#575330",
+        "3": "#2b2416",
+        "4": "#30291b",
+        "5": "#96866e",
+        "bg": "#b39f7b"
+    }
+};
+
+let gridHeight = gridWidth;
+drawingcanvas.width = gridWidth * 10;
+drawingcanvas.height = gridHeight * 10;
+let width = drawingcanvas.width;
+let height = drawingcanvas.height;
+canvasCtx.fillStyle = palette[chosenPalette]["5"];
+canvasCtx.fillRect(0, 0, width, height);
+canvasCtx.fillStyle = palette[chosenPalette]["1"];
+document.getElementById("color1Btn").style.backgroundColor = palette[chosenPalette]["1"];
+document.getElementById("color2Btn").style.backgroundColor = palette[chosenPalette]["2"];
+document.getElementById("color3Btn").style.backgroundColor = palette[chosenPalette]["3"];
+document.getElementById("color4Btn").style.backgroundColor = palette[chosenPalette]["4"];
+document.getElementById("drawImg").style.opacity = "0.1";
+document.getElementById("drawBtn").style.borderWidth = "2px";
+document.getElementById("drawBtn").style.borderColor = "red";
+document.getElementById("color" + activeColor + "Btn").style.borderWidth = "3px";
+document.getElementById("color" + activeColor + "Btn").style.borderColor = "red";
+
+// -------------------------------------------------------------
+// ------------------ Generate Pattern Events ------------------
+// -------------------------------------------------------------
+
 patternSize.addEventListener('change', (e) => {
     switch (e.target.value) {
         case "hd":
-            imgSizeX = 1920;
-            imgSizeY = 1080;
+            imageSizeX = 1920;
+            imageSizeY = 1080;
             break;
         case "2k":
-            imgSizeX = 2560;
-            imgSizeY = 1440;
+            imageSizeX = 2560;
+            imageSizeY = 1440;
             break;
         case "4k":
-            imgSizeX = 3840;
-            imgSizeY = 2160;
+            imageSizeX = 3840;
+            imageSizeY = 2160;
             break;
         default:
-            imgSizeX = window.innerWidth;
-            imgSizeY = window.innerHeight;
+            imageSizeX = window.innerWidth;
+            imageSizeY = window.innerHeight;
             break;
     }
 });
-
-const scale = document.getElementById('scale');
-let g_scale = parseInt(scale.value);
 scale.addEventListener("input", (e) => {
     if (typeof pattern === 'undefined') return;
-    g_scale = parseInt(e.target.value);
+    scaleNumber = parseInt(e.target.value);
     generatePattern(pattern);
     generateBg();
 });
-
-const fileSelector = document.getElementById('fileinput');
 fileSelector.addEventListener('change', (event) => {
+    if (event.target.files.length == 0) return;
     const fileList = event.target.files;
     const reader = new FileReader();
-    reader.onload = function (e) {
+    reader.onload = function(e) {
         pattern = JSON.parse(e.target.result);
         generatePattern(pattern);
         generatePreview(pattern);
@@ -51,20 +176,71 @@ fileSelector.addEventListener('change', (event) => {
     };
     reader.readAsText(fileList[0]);
 });
-
 window.addEventListener('resize', () => {
     if (typeof pattern === 'undefined') return;
-    if (imgSizeX != window.innerWidth) patternSize.value = "auto";
+    if (imageSizeX != window.innerWidth) patternSize.value = "auto";
     generatePattern(pattern);
     generateBg();
 });
+generateSaveBtn.addEventListener("click", () => { saveImage(); });
 
-const saveBtn = document.getElementById('saveBtn');
-saveBtn.addEventListener("click", () => { saveImage(); });
+// -------------------------------------------------------------
+// ------------------- Create Pattern Events -------------------
+// -------------------------------------------------------------
 
-if (window.history.replaceState) {
-    window.history.replaceState(null, null, window.location.href);
-}
+document.addEventListener('mouseup', () => {
+    down = false;
+    stillclicking = false;
+}, 0);
+drawingcanvas.addEventListener('mouseout', () => {
+    down = false;
+}, 0);
+drawingcanvas.addEventListener('mouseover', () => {
+    if (stillclicking) down = true;
+}, 0);
+drawingcanvas.addEventListener('mousemove', (e) => {
+    if (!down) return;
+    if (tool == 'draw') draw(drawingcanvas.getBoundingClientRect(), e);
+    else erase(drawingcanvas.getBoundingClientRect(), e);
+}, 0);
+drawingcanvas.addEventListener('mousedown', (e) => {
+    down = true;
+    stillclicking = true;
+    if (tool == 'draw') draw(drawingcanvas.getBoundingClientRect(), e);
+    else erase(drawingcanvas.getBoundingClientRect(), e);
+}, 0);
+drawBtn.addEventListener("click", () => {
+    if (tool != 'draw') {
+        tool = 'draw';
+        document.getElementById("drawImg").style.opacity = "0.1"
+        document.getElementById("drawBtn").style.borderWidth = "2px";
+        document.getElementById("drawBtn").style.borderColor = "red";
+        document.getElementById("eraseImg").style.opacity = "1"
+        document.getElementById("eraseBtn").style.borderWidth = "0px";
+    }
+});
+eraseBtn.addEventListener("click", () => {
+    if (tool != 'erase') {
+        tool = 'erase';
+        document.getElementById("eraseImg").style.opacity = "0.1"
+        document.getElementById("eraseBtn").style.borderWidth = "2px";
+        document.getElementById("eraseBtn").style.borderColor = "red";
+        document.getElementById("drawImg").style.opacity = "1"
+        document.getElementById("drawBtn").style.borderWidth = "0px";
+    }
+});
+paletteBtn.addEventListener("change", (e) => { changePalette(e.target.value); });
+color1Btn.addEventListener("click", () => { changeActiveColor("1") });
+color2Btn.addEventListener("click", () => { changeActiveColor("2") });
+color3Btn.addEventListener("click", () => { changeActiveColor("3") });
+color4Btn.addEventListener("click", () => { changeActiveColor("4") });
+saveBtn.addEventListener("click", () => { save(); });
+deleteBtn.addEventListener("click", () => { clearCanvas(); });
+gridBtn.addEventListener("click", () => { updateSize(); });
+
+// -------------------------------------------------------------
+// ----------------- Generate Pattern function -----------------
+// -------------------------------------------------------------
 
 function generatePattern(json) {
     behaviour = json.behaviour;
@@ -72,20 +248,20 @@ function generatePattern(json) {
     overlapY = json.overlap.y;
     flipX = json.flipX;
     flipY = json.flipY;
-    origCanvas.width = json.size_x * g_scale;
-    origCanvas.height = json.size_y * g_scale;
-    for (let y = 0; y < json.size_y * g_scale; y += g_scale) {
-        for (let x = 0; x < json.size_x * g_scale; x += g_scale) {
-            origCanvasCtx.fillStyle = json.colors[json.pattern[x / g_scale + y / g_scale * json.size_y]];
-            origCanvasCtx.fillRect(x, y, g_scale, g_scale);
+    origCanvas.width = json.size_x * scaleNumber;
+    origCanvas.height = json.size_y * scaleNumber;
+    for (let y = 0; y < json.size_y * scaleNumber; y += scaleNumber) {
+        for (let x = 0; x < json.size_x * scaleNumber; x += scaleNumber) {
+            origCanvasCtx.fillStyle = json.colors[json.pattern[x / scaleNumber + y / scaleNumber * json.size_y]];
+            origCanvasCtx.fillRect(x, y, scaleNumber, scaleNumber);
         }
     }
 }
 
 function generatePreview(json) {
-    var prevCanvas = document.getElementById('previewCanvas');
+    const prevCanvas = document.getElementById('previewCanvas');
     prevCanvas.style.boxShadow = "0px 0px 10px 0px rgba(0, 0, 0, 0.5)";
-    var prevCanvasCtx = prevCanvas.getContext("2d");
+    const prevCanvasCtx = prevCanvas.getContext("2d");
     prevCanvas.width = json.size_x * 4;
     prevCanvas.height = json.size_y * 4;
     for (let y = 0; y < json.size_y * 4; y += 4) {
@@ -97,27 +273,27 @@ function generatePreview(json) {
 }
 
 function generateBg() {
-    var bigWidth = 0;
-    var bigHeight = 0;
-    var bigCanvas = document.getElementById('canvasBig');
-    var bigCtx = bigCanvas.getContext('2d');
-    bigCtx.canvas.width = imgSizeX;
-    bigCtx.canvas.height = imgSizeY;
+    let bigWidth = 0;
+    let bigHeight = 0;
+    const bigCanvas = document.getElementById('canvasBig');
+    const bigCtx = bigCanvas.getContext('2d');
+    bigCtx.canvas.width = imageSizeX;
+    bigCtx.canvas.height = imageSizeY;
     if (behaviour == 'no-repeat') return;
     if (behaviour == 'repeat') {
-        var flip = true;
-        var flop = true;
-        while (bigHeight <= imgSizeY) {
-            var initFlip = flip;
-            var initFlop = flop;
-            var tempCanvas2 = document.createElement('canvas');
-            var tempCtx2 = tempCanvas2.getContext('2d');
+        let flip = true;
+        let flop = true;
+        while (bigHeight <= imageSizeY) {
+            let initFlip = flip;
+            let initFlop = flop;
+            const tempCanvas2 = document.createElement('canvas');
+            const tempCtx2 = tempCanvas2.getContext('2d');
             tempCtx2.canvas.width = bigCtx.canvas.width;
             tempCtx2.canvas.height = bigCtx.canvas.height;
             bigWidth = 0;
-            while (bigWidth <= imgSizeX) {
-                var tempCanvas = document.createElement('canvas');
-                var tempCtx = tempCanvas.getContext('2d');
+            while (bigWidth <= imageSizeX) {
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
                 tempCtx.canvas.width = bigCtx.canvas.width;
                 tempCtx.canvas.height = origCanvas.height;
                 if (flipX && flip) tempCtx.translate(origCanvas.width, 0);
@@ -128,23 +304,111 @@ function generateBg() {
                 if (flipX) flip = !flip;
                 if (flipY) flop = !flop;
                 tempCtx2.drawImage(tempCanvas, bigWidth, bigHeight);
-                bigWidth += origCanvas.width - overlapX * g_scale;
+                bigWidth += origCanvas.width - overlapX * scaleNumber;
             }
             flip = initFlip == flip ? !flip : flip;
             flop = initFlop == flop ? !flop : flop;
             bigCtx.drawImage(tempCanvas2, 0, 0);
-            bigHeight += origCanvas.height - overlapY * g_scale;
+            bigHeight += origCanvas.height - overlapY * scaleNumber;
         }
     }
 }
 
 function saveImage() {
     if (typeof pattern === 'undefined') return;
-    var a = document.createElement('a');
-    if (imgSizeX != window.innerWidth) generateBg();
-    var canvas = document.getElementById("canvasBig");
+    const a = document.createElement('a');
+    if (imageSizeX != window.innerWidth) generateBg();
+    const canvas = document.getElementById("canvasBig");
     a.href = canvas.toDataURL();
     a.download = document.getElementById('name').value + ".png";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+// -------------------------------------------------------------
+// ---------------- Create new Pattern function ----------------
+// -------------------------------------------------------------
+
+function draw(boundingClientRect, e) {
+    let x = e.clientX - boundingClientRect.left;
+    let y = e.clientY - boundingClientRect.top;
+    x = Math.floor(gridWidth * x / drawingcanvas.clientWidth);
+    y = Math.floor(gridHeight * y / drawingcanvas.clientHeight);
+    if (x >= 0 && x < width && y >= 0 && y < height) {
+        let clampx = Math.floor(x * (width / gridWidth));
+        let clampy = Math.floor(y * (height / gridHeight));
+        let clampw = Math.floor(width / gridWidth);
+        let clamph = Math.floor(height / gridHeight);
+        canvasCtx.fillRect(clampx, clampy, clampw, clamph);
+    }
+}
+
+function erase(boundingClientRect, e) {
+    const tempColor = canvasCtx.fillStyle;
+    canvasCtx.fillStyle = palette[chosenPalette]["5"];
+    this.draw(boundingClientRect, e);
+    canvasCtx.fillStyle = tempColor;
+}
+
+function clearCanvas() {
+    canvasCtx.fillStyle = palette[chosenPalette]["5"];
+    canvasCtx.fillRect(0, 0, width, height);
+    canvasCtx.fillStyle = palette[chosenPalette][activeColor];
+}
+
+function updateSize() {
+    gridWidth = parseInt(document.getElementById("gridx").value);
+    gridHeight = gridWidth;
+    drawingcanvas.width = gridWidth * 10;
+    drawingcanvas.height = gridHeight * 10;
+    width = drawingcanvas.width;
+    height = drawingcanvas.height;
+    clearCanvas();
+}
+
+function changeActiveColor(color) {
+    if (color == activeColor) return;
+    canvasCtx.fillStyle = palette[chosenPalette][color];
+    document.getElementById("color" + color + "Btn").style.borderWidth = "3px";
+    document.getElementById("color" + color + "Btn").style.borderColor = "red";
+
+    document.getElementById("color" + activeColor + "Btn").style.borderWidth = "0px";
+    activeColor = color;
+}
+
+function changePalette(value) {
+    chosenPalette = value;
+    document.getElementById("color1Btn").style.backgroundColor = palette[chosenPalette]["1"];
+    document.getElementById("color2Btn").style.backgroundColor = palette[chosenPalette]["2"];
+    document.getElementById("color3Btn").style.backgroundColor = palette[chosenPalette]["3"];
+    document.getElementById("color4Btn").style.backgroundColor = palette[chosenPalette]["4"];
+    clearCanvas();
+}
+
+function save() {
+    const data = canvasCtx.getImageData(0, 0, width, height).data;
+    let count = 0;
+    let pattern = "";
+    for (let i = 0; i < data.length; i += 40) {
+        count++
+        if (count <= gridWidth) {
+            r = (data[i] | 1 << 8).toString(16).slice(1);
+            g = (data[i + 1] | 1 << 8).toString(16).slice(1);
+            b = (data[i + 2] | 1 << 8).toString(16).slice(1);
+            // a = (data[i + 3] | 1 << 8).toString(16).slice(1);
+            pattern += Object.keys(palette[chosenPalette]).find(key => palette[chosenPalette][key] == "#" + r + g + b) || "0";
+        }
+        if (count >= data.length / 4 / width) count = 0;
+    }
+    template.size_x = gridWidth;
+    template.size_y = gridHeight;
+    template.pattern = pattern;
+    template.colors = palette[chosenPalette];
+    const blob = new Blob([JSON.stringify(template, null, 2)], { type: 'application/json' });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.setAttribute("download", "pattern.json");
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

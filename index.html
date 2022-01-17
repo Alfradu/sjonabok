@@ -12,6 +12,8 @@
         <h2>Sjónabók Patterns</h2>
         <div>
             <button id="generatePageBtn" type="button">Open pattern</button>
+        </div>
+        <div>
             <button id="createPageBtn" type="button">Edit pattern</button>
         </div>
     </div>
@@ -19,7 +21,6 @@
         <div id="preview">
             <canvas id="previewCanvas"></canvas>
         </div>
-        <h2>Sjónabók Patterns</h2>
         <div>
             <label>Size</label>
             <select name="size" id="size" title='Choose size'>
@@ -38,9 +39,69 @@
             <input type="text" id='name' name='name' value='Pattern' title='Choose file Name'>
         </div>
         <input type='file' id='fileinput' accept=".json" title='Choose pattern file'>
-        <button id="saveBtn" type="button">Save pattern</button>
+        <button id="saveImgBtn" type="button">Save pattern</button>
+        <button id="backCanvasBtn" type="button">Back</button>
+    </div>
+    <div id="createPage" style="display:none">
+        <canvas id="canvas"></canvas>
+        <div id="sidepanel">
+            <div class="section" id="top">
+                <h2>Pattern creator</h2>
+            </div>
+            <div class="section">
+                <!-- Draw | Erase -->
+                <button id="drawBtn" class="sectionBtn" type="button">
+                <img src="images/draw.png" id="drawImg" title='draw'/>
+            </button>
+                <button id="eraseBtn" class="sectionBtn" type="button">
+                <img src="images/erase.png" id="eraseImg" title='erase'/>
+            </button>
+            </div>
+            <div class="section">
+                <!-- Color swap (palette?) -->
+                <label>Palette</label>
+                <select name="color" id="colorPalette" title='Choose color'>
+                <option value="1">Palette 1</option>
+                <option value="2">Palette 2</option>
+                <option value="3">Palette 3</option>
+                <option value="4">Palette 4</option>
+            </select>
+            </div>
+            <div class="section2">
+                <!-- color? -->
+                <button id="color1Btn" class="section2Btn" type="button" title='color 1'></button>
+                <button id="color2Btn" class="section2Btn" type="button" title='color 2'></button>
+                <button id="color3Btn" class="section2Btn" type="button" title='color 3'></button>
+                <button id="color4Btn" class="section2Btn" type="button" title='color 4'></button>
+            </div>
+            <div class="section">
+                <!-- rotation | behaviour -->
+            </div>
+            <div class="section">
+                <!-- flip x and flip y | overlap -->
+            </div>
+            <div class="section">
+                <!-- Save | Delete -->
+                <button id="saveBtn" class="sectionBtn" type="button">
+                <img src="images/save.png" id="saveImg" title='save'/>
+            </button>
+                <button id="delBtn" class="sectionBtn" type="button">
+                <img src="images/delete.png" id="delImg" title='delete'/>
+            </button>
+            </div>
+            <div class="section">
+                <!-- Page -->
+            </div>
+            <div class="section">
+                <label>Grid size</label>
+                <input type="number" class="gridsize" id="gridx" value="35" name="grid x" min="10" max="120" title='Choose x'>
+                <button id="gridBtn" type="button">ok</button>
+            </div>
+            <button id="backCreateBtn" type="button">Back</button>
+        </div>
     </div>
 </body>
 <script src="script.js"></script>
+<script src="pageNavigator.js"></script>
 
 </html>
