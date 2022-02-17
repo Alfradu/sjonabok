@@ -25,7 +25,11 @@ const generateSaveBtn = document.getElementById('saveImgBtn');
 // -------------------------------------------------------------
 
 const drawBtn = document.getElementById('drawBtn');
+const drawImg = document.getElementById('drawImg');
 const eraseBtn = document.getElementById('eraseBtn');
+const eraseImg = document.getElementById('eraseImg');
+const fillBtn = document.getElementById('fillBtn');
+const fillImg = document.getElementById('fillImg');
 const paletteBtn = document.getElementById('colorPalette');
 const color1Btn = document.getElementById('color1Btn');
 const color2Btn = document.getElementById('color2Btn');
@@ -34,7 +38,6 @@ const color4Btn = document.getElementById('color4Btn');
 const saveBtn = document.getElementById('saveBtn');
 const deleteBtn = document.getElementById('delBtn');
 const gridBtn = document.getElementById('gridBtn');
-const gridWidth = parseInt(document.getElementById("gridx").value);
 const drawingcanvas = document.getElementById("canvas");
 const canvasCtx = drawingcanvas.getContext("2d");
 
@@ -50,11 +53,14 @@ let flipX;
 let flipY;
 let imageSizeX = window.innerWidth;
 let imageSizeY = window.innerHeight;
+let imageData;
 
 // -------------------------------------------------------------
 // ------------------ Create Pattern Globals -------------------
 // -------------------------------------------------------------
 
+let gridWidth = parseInt(document.getElementById("gridx").value);
+let gridHeight = gridWidth;
 var tool = 'draw';
 var down = false;
 var activeColor = "1";
@@ -116,7 +122,6 @@ var palette = {
     }
 };
 
-let gridHeight = gridWidth;
 drawingcanvas.width = gridWidth * 10;
 drawingcanvas.height = gridHeight * 10;
 let width = drawingcanvas.width;
@@ -124,13 +129,13 @@ let height = drawingcanvas.height;
 canvasCtx.fillStyle = palette[chosenPalette]["5"];
 canvasCtx.fillRect(0, 0, width, height);
 canvasCtx.fillStyle = palette[chosenPalette]["1"];
-document.getElementById("color1Btn").style.backgroundColor = palette[chosenPalette]["1"];
-document.getElementById("color2Btn").style.backgroundColor = palette[chosenPalette]["2"];
-document.getElementById("color3Btn").style.backgroundColor = palette[chosenPalette]["3"];
-document.getElementById("color4Btn").style.backgroundColor = palette[chosenPalette]["4"];
-document.getElementById("drawImg").style.opacity = "0.1";
-document.getElementById("drawBtn").style.borderWidth = "2px";
-document.getElementById("drawBtn").style.borderColor = "red";
+color1Btn.style.backgroundColor = palette[chosenPalette]["1"];
+color2Btn.style.backgroundColor = palette[chosenPalette]["2"];
+color3Btn.style.backgroundColor = palette[chosenPalette]["3"];
+color4Btn.style.backgroundColor = palette[chosenPalette]["4"];
+drawImg.style.opacity = "0.1";
+drawBtn.style.borderWidth = "2px";
+drawBtn.style.borderColor = "red";
 document.getElementById("color" + activeColor + "Btn").style.borderWidth = "3px";
 document.getElementById("color" + activeColor + "Btn").style.borderColor = "red";
 
@@ -168,7 +173,7 @@ fileSelector.addEventListener('change', (event) => {
     if (event.target.files.length == 0) return;
     const fileList = event.target.files;
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
         pattern = JSON.parse(e.target.result);
         generatePattern(pattern);
         generatePreview(pattern);
@@ -201,32 +206,52 @@ drawingcanvas.addEventListener('mouseover', () => {
 drawingcanvas.addEventListener('mousemove', (e) => {
     if (!down) return;
     if (tool == 'draw') draw(drawingcanvas.getBoundingClientRect(), e);
-    else erase(drawingcanvas.getBoundingClientRect(), e);
+    else if (tool == 'erase') erase(drawingcanvas.getBoundingClientRect(), e);
 }, 0);
 drawingcanvas.addEventListener('mousedown', (e) => {
     down = true;
     stillclicking = true;
     if (tool == 'draw') draw(drawingcanvas.getBoundingClientRect(), e);
-    else erase(drawingcanvas.getBoundingClientRect(), e);
+    else if (tool == 'erase') erase(drawingcanvas.getBoundingClientRect(), e);
+    else if (tool == 'fill') {
+        imageData = canvasCtx.getImageData(0, 0, width, height).data;
+        fill(drawingcanvas.getBoundingClientRect(), e);
+    }
 }, 0);
 drawBtn.addEventListener("click", () => {
     if (tool != 'draw') {
         tool = 'draw';
-        document.getElementById("drawImg").style.opacity = "0.1"
-        document.getElementById("drawBtn").style.borderWidth = "2px";
-        document.getElementById("drawBtn").style.borderColor = "red";
-        document.getElementById("eraseImg").style.opacity = "1"
-        document.getElementById("eraseBtn").style.borderWidth = "0px";
+        drawImg.style.opacity = "0.1"
+        drawBtn.style.borderWidth = "2px";
+        drawBtn.style.borderColor = "red";
+        eraseImg.style.opacity = "1"
+        eraseBtn.style.borderWidth = "0px";
+        fillImg.style.opacity = "1"
+        fillBtn.style.borderWidth = "0px";
     }
 });
 eraseBtn.addEventListener("click", () => {
     if (tool != 'erase') {
         tool = 'erase';
-        document.getElementById("eraseImg").style.opacity = "0.1"
-        document.getElementById("eraseBtn").style.borderWidth = "2px";
-        document.getElementById("eraseBtn").style.borderColor = "red";
-        document.getElementById("drawImg").style.opacity = "1"
-        document.getElementById("drawBtn").style.borderWidth = "0px";
+        eraseImg.style.opacity = "0.1"
+        eraseBtn.style.borderWidth = "2px";
+        eraseBtn.style.borderColor = "red";
+        drawImg.style.opacity = "1"
+        drawBtn.style.borderWidth = "0px";
+        fillImg.style.opacity = "1"
+        fillBtn.style.borderWidth = "0px";
+    }
+});
+fillBtn.addEventListener("click", () => {
+    if (tool != 'fill') {
+        tool = 'fill';
+        fillImg.style.opacity = "0.1"
+        fillBtn.style.borderWidth = "2px";
+        fillBtn.style.borderColor = "red";
+        drawImg.style.opacity = "1"
+        drawBtn.style.borderWidth = "0px";
+        eraseImg.style.opacity = "1"
+        eraseBtn.style.borderWidth = "0px";
     }
 });
 paletteBtn.addEventListener("change", (e) => { changePalette(e.target.value); });
@@ -344,6 +369,36 @@ function draw(boundingClientRect, e) {
     }
 }
 
+function fill(boundingClientRect, e) {
+    let x = e.clientX - boundingClientRect.left;
+    let y = e.clientY - boundingClientRect.top;
+    if (e.clientX >= boundingClientRect.left && e.clientX < drawingcanvas.clientWidth && e.clientY >= boundingClientRect.top && e.clientY < drawingcanvas.clientHeight) {
+        x = Math.floor(gridWidth * x / drawingcanvas.clientWidth);
+        y = Math.floor(gridHeight * y / drawingcanvas.clientHeight);
+        let index = (x*10 + y*10*width)*4;
+        let r = (imageData[index] | 1 << 8).toString(16).slice(1);
+        let g = (imageData[index+1] | 1 << 8).toString(16).slice(1);
+        let b = (imageData[index+2] | 1 << 8).toString(16).slice(1);
+        let color = "#" + r + g + b;
+        if (color != palette[chosenPalette][activeColor]) {
+            let clampx = Math.floor(x * (width / gridWidth));
+            let clampy = Math.floor(y * (height / gridHeight));
+            let clampw = Math.floor(width / gridWidth);
+            let clamph = Math.floor(height / gridHeight);
+            canvasCtx.fillRect(clampx, clampy, clampw, clamph);
+            let repos = drawingcanvas.clientWidth/gridWidth;
+            alert("new coords\n" + (e.clientX - repos) + "," + e.clientY + "\n" 
+            + (e.clientX + repos) + "," + e.clientY + "\n"
+            + e.clientX + "," + (e.clientY - repos) + "\n"
+            + e.clientX + "," + (e.clientY + repos) + "\n" + "current: " + e.clientX + "," + e.clientY);
+            fill(boundingClientRect, { clientX: e.clientX - repos, clientY: e.clientY });
+            fill(boundingClientRect, { clientX: e.clientX + repos, clientY: e.clientY });
+            fill(boundingClientRect, { clientX: e.clientX, clientY: e.clientY - repos });
+            fill(boundingClientRect, { clientX: e.clientX, clientY: e.clientY + repos });
+        }
+    }
+}
+
 function erase(boundingClientRect, e) {
     const tempColor = canvasCtx.fillStyle;
     canvasCtx.fillStyle = palette[chosenPalette]["5"];
@@ -379,10 +434,10 @@ function changeActiveColor(color) {
 
 function changePalette(value) {
     chosenPalette = value;
-    document.getElementById("color1Btn").style.backgroundColor = palette[chosenPalette]["1"];
-    document.getElementById("color2Btn").style.backgroundColor = palette[chosenPalette]["2"];
-    document.getElementById("color3Btn").style.backgroundColor = palette[chosenPalette]["3"];
-    document.getElementById("color4Btn").style.backgroundColor = palette[chosenPalette]["4"];
+    color1Btn.style.backgroundColor = palette[chosenPalette]["1"];
+    color2Btn.style.backgroundColor = palette[chosenPalette]["2"];
+    color3Btn.style.backgroundColor = palette[chosenPalette]["3"];
+    color4Btn.style.backgroundColor = palette[chosenPalette]["4"];
     clearCanvas();
 }
 
@@ -393,9 +448,9 @@ function save() {
     for (let i = 0; i < data.length; i += 40) {
         count++
         if (count <= gridWidth) {
-            r = (data[i] | 1 << 8).toString(16).slice(1);
-            g = (data[i + 1] | 1 << 8).toString(16).slice(1);
-            b = (data[i + 2] | 1 << 8).toString(16).slice(1);
+            let r = (data[i] | 1 << 8).toString(16).slice(1);
+            let g = (data[i + 1] | 1 << 8).toString(16).slice(1);
+            let b = (data[i + 2] | 1 << 8).toString(16).slice(1);
             // a = (data[i + 3] | 1 << 8).toString(16).slice(1);
             pattern += Object.keys(palette[chosenPalette]).find(key => palette[chosenPalette][key] == "#" + r + g + b) || "0";
         }

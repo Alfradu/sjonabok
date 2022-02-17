@@ -51,21 +51,26 @@
             <div class="section">
                 <!-- Draw | Erase -->
                 <button id="drawBtn" class="sectionBtn" type="button">
-                <img src="images/draw.png" id="drawImg" title='draw'/>
-            </button>
+                    <img src="images/draw.png" id="drawImg" title='draw' />
+                </button>
                 <button id="eraseBtn" class="sectionBtn" type="button">
-                <img src="images/erase.png" id="eraseImg" title='erase'/>
-            </button>
+                    <img src="images/erase.png" id="eraseImg" title='erase' />
+                </button>
+            </div>
+            <div class="section">
+                <!-- fill | rotate? -->
+                <button id="fillBtn" class="sectionBtn" type="button">
+                    <img src="images/fill.png" id="fillImg" title='fill' />
             </div>
             <div class="section">
                 <!-- Color swap (palette?) -->
                 <label>Palette</label>
                 <select name="color" id="colorPalette" title='Choose color'>
-                <option value="1">Palette 1</option>
-                <option value="2">Palette 2</option>
-                <option value="3">Palette 3</option>
-                <option value="4">Palette 4</option>
-            </select>
+                    <option value="1">Palette 1</option>
+                    <option value="2">Palette 2</option>
+                    <option value="3">Palette 3</option>
+                    <option value="4">Palette 4</option>
+                </select>
             </div>
             <div class="section2">
                 <!-- color? -->
@@ -75,26 +80,24 @@
                 <button id="color4Btn" class="section2Btn" type="button" title='color 4'></button>
             </div>
             <div class="section">
-                <!-- rotation | behaviour -->
-            </div>
-            <div class="section">
                 <!-- flip x and flip y | overlap -->
             </div>
             <div class="section">
                 <!-- Save | Delete -->
                 <button id="saveBtn" class="sectionBtn" type="button">
-                <img src="images/save.png" id="saveImg" title='save'/>
-            </button>
+                    <img src="images/save.png" id="saveImg" title='save' />
+                </button>
                 <button id="delBtn" class="sectionBtn" type="button">
-                <img src="images/delete.png" id="delImg" title='delete'/>
-            </button>
+                    <img src="images/delete.png" id="delImg" title='delete' />
+                </button>
             </div>
             <div class="section">
                 <!-- Page -->
             </div>
             <div class="section">
                 <label>Grid size</label>
-                <input type="number" class="gridsize" id="gridx" value="35" name="grid x" min="10" max="120" title='Choose x'>
+                <input type="number" class="gridsize" id="gridx" value="35" name="grid x" min="4" max="120"
+                    title='Choose x'>
                 <button id="gridBtn" type="button">ok</button>
             </div>
             <button id="backCreateBtn" type="button">Back</button>
