@@ -173,7 +173,7 @@ fileSelector.addEventListener('change', (event) => {
     if (event.target.files.length == 0) return;
     const fileList = event.target.files;
     const reader = new FileReader();
-    reader.onload = function (e) {
+    reader.onload = function(e) {
         pattern = JSON.parse(e.target.result);
         generatePattern(pattern);
         generatePreview(pattern);
@@ -370,32 +370,51 @@ function draw(boundingClientRect, e) {
 }
 
 function fill(boundingClientRect, e) {
-    let x = e.clientX - boundingClientRect.left;
-    let y = e.clientY - boundingClientRect.top;
-    if (e.clientX >= boundingClientRect.left && e.clientX < drawingcanvas.clientWidth && e.clientY >= boundingClientRect.top && e.clientY < drawingcanvas.clientHeight) {
-        x = Math.floor(gridWidth * x / drawingcanvas.clientWidth);
-        y = Math.floor(gridHeight * y / drawingcanvas.clientHeight);
-        let index = (x*10 + y*10*width)*4;
-        let r = (imageData[index] | 1 << 8).toString(16).slice(1);
-        let g = (imageData[index+1] | 1 << 8).toString(16).slice(1);
-        let b = (imageData[index+2] | 1 << 8).toString(16).slice(1);
-        let color = "#" + r + g + b;
-        if (color != palette[chosenPalette][activeColor]) {
-            let clampx = Math.floor(x * (width / gridWidth));
-            let clampy = Math.floor(y * (height / gridHeight));
-            let clampw = Math.floor(width / gridWidth);
-            let clamph = Math.floor(height / gridHeight);
-            canvasCtx.fillRect(clampx, clampy, clampw, clamph);
-            let repos = drawingcanvas.clientWidth/gridWidth;
-            alert("new coords\n" + (e.clientX - repos) + "," + e.clientY + "\n" 
-            + (e.clientX + repos) + "," + e.clientY + "\n"
-            + e.clientX + "," + (e.clientY - repos) + "\n"
-            + e.clientX + "," + (e.clientY + repos) + "\n" + "current: " + e.clientX + "," + e.clientY);
-            fill(boundingClientRect, { clientX: e.clientX - repos, clientY: e.clientY });
-            fill(boundingClientRect, { clientX: e.clientX + repos, clientY: e.clientY });
-            fill(boundingClientRect, { clientX: e.clientX, clientY: e.clientY - repos });
-            fill(boundingClientRect, { clientX: e.clientX, clientY: e.clientY + repos });
+    let fillColor = '';
+    let pointStack = [];
+    pointStack.push({ x: e.clientX, y: e.clientY, visited: false });
+
+    while (pointStack.some(obj => obj.visited == false)) {
+        let currVisit = pointStack.findIndex(obj => obj.visited == false);
+        if (currVisit != -1) {
+            pointStack[currVisit].visited = true;
+        } else {
+            continue;
         }
+        if (pointStack[currVisit].x < boundingClientRect.left) continue;
+        if (pointStack[currVisit].x > boundingClientRect.right) continue;
+        if (pointStack[currVisit].y < boundingClientRect.top) continue;
+        if (pointStack[currVisit].y > boundingClientRect.bottom) continue;
+        let x = Math.floor(gridWidth * (pointStack[currVisit].x - boundingClientRect.left) / drawingcanvas.clientWidth);
+        let y = Math.floor(gridHeight * (pointStack[currVisit].y - boundingClientRect.top) / drawingcanvas.clientHeight);
+        let index = (x * 10 + y * 10 * width) * 4;
+        let r = (imageData[index] | 1 << 8).toString(16).slice(1);
+        let g = (imageData[index + 1] | 1 << 8).toString(16).slice(1);
+        let b = (imageData[index + 2] | 1 << 8).toString(16).slice(1);
+        let color = "#" + r + g + b;
+        if (fillColor == '') fillColor = color;
+        if (color != fillColor) {
+            pointStack.splice(currVisit, 1);
+            continue;
+        }
+        let repos = drawingcanvas.clientWidth / gridWidth;
+        if (!pointStack.some((obj) => obj.x == (pointStack[currVisit].x - repos) && obj.y == pointStack[currVisit].y))
+            pointStack.push({ x: pointStack[currVisit].x - repos, y: pointStack[currVisit].y, visited: false });
+        if (!pointStack.some((obj) => obj.x == (pointStack[currVisit].x + repos) && obj.y == pointStack[currVisit].y))
+            pointStack.push({ x: pointStack[currVisit].x + repos, y: pointStack[currVisit].y, visited: false });
+        if (!pointStack.some((obj) => obj.x == (pointStack[currVisit].x) && obj.y == pointStack[currVisit].y - repos))
+            pointStack.push({ x: pointStack[currVisit].x, y: pointStack[currVisit].y - repos, visited: false });
+        if (!pointStack.some((obj) => obj.x == (pointStack[currVisit].x) && obj.y == pointStack[currVisit].y + repos))
+            pointStack.push({ x: pointStack[currVisit].x, y: pointStack[currVisit].y + repos, visited: false });
+    }
+    for (let j = 0; j < pointStack.length; j++) {
+        let x = Math.floor(gridWidth * (pointStack[j].x - boundingClientRect.left) / drawingcanvas.clientWidth);
+        let y = Math.floor(gridHeight * (pointStack[j].y - boundingClientRect.top) / drawingcanvas.clientHeight);
+        let clampx = Math.floor(x * (width / gridWidth));
+        let clampy = Math.floor(y * (height / gridHeight));
+        let clampw = Math.floor(width / gridWidth);
+        let clamph = Math.floor(height / gridHeight);
+        canvasCtx.fillRect(clampx, clampy, clampw, clamph);
     }
 }
 
